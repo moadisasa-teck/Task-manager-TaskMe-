@@ -1,0 +1,42 @@
+# Node modules (backend and frontend)
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Logs
+logs
+*.log
+
+# Dependency locks
+package-lock.json
+client/package-lock.json
+server/package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+client/build/
+server/dist/
+
+# Environment files
+.env
+client/.env
+server/.env
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Netlify build cache (optional)
+.netlify/
+
+# Render build artifacts (optional if you have custom scripts)
+render.yaml
