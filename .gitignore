@@ -1,9 +1,7 @@
-# Build outputs
-client/build/
+client/node_modules
+server/node_modules
+client/dist/
 server/dist/
-
-# Environment files
-.env
 client/.env
 server/.env
 
