@@ -154,5 +154,5 @@ First, create the environment variables file `.env` in the client folder. The `.
 
 ## For Support, Contact:
 
-- Email: codewavewithasante@gmail.com
-- Telegram Chat: [https://t.me/Codewave_with_asante](https://t.me/Codewave_with_asante)
+- Email: moa.disasa@astu.edu.et
+<!-- - Telegram Chat: [https://t.me/Codewave_with_asante](https://t.me/Codewave_with_asante) -->
