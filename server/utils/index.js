@@ -7,9 +7,9 @@ const createJWT = (res, userId) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Secure only in production
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "strict", // Lax for local dev
-    maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+    secure: true, // Required for SameSite=None
+    sameSite: "None", // Allow cross-site cookie
+    maxAge: 24 * 60 * 60 * 1000, // Example: 1 day
   });
 };
 
