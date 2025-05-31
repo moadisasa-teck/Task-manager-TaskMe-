@@ -2,6 +2,9 @@ import asyncHandler from "express-async-handler";
 import Notice from "../models/notis.js";
 import User from "../models/userModel.js";
 import createJWT from "../utils/index.js";
+import crypto from "crypto";
+import sendEmail from "../utils/sendEmail.js";
+import jwt from "jsonwebtoken";
 
 // POST request - login user
 const loginUser = asyncHandler(async (req, res) => {
@@ -174,8 +177,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     isAdmin && userId === _id
       ? userId
       : isAdmin && userId !== _id
-      ? _id
-      : userId;
+        ? _id
+        : userId;
 
   const user = await User.findById(id);
 
@@ -261,6 +264,73 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
   res.status(200).json({ status: true, message: "User deleted successfully" });
 });
 
+// POST - Forgot Password (send email)
+const forgotPassword = asyncHandler(async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  const resetToken = user.getResetPasswordToken();
+  await user.save({ validateBeforeSave: false });
+
+  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+  const message = `
+  <p>You requested a password reset. Click the link below to reset your password:</p>
+  <a href="${resetUrl}" target="_blank">Reset Password</a>
+  <p>If you didn't request this, please ignore this email.</p>
+`;
+
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: "Password Reset Request",
+      html: message, // Changed from text to html
+    });
+
+    res.status(200).json({ success: true, message: "Reset link sent" });
+    console.log("Reset URL =>", resetUrl);
+  } catch (error) {
+    console.error(error);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    res.status(500).json({ message: "Email could not be sent" });
+  }
+});
+
+// @route   PUT /api/user/reset-password/:token
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  // Hash the received token to compare with stored hash
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpire: { $gt: Date.now() }, // Ensure token hasn't expired
+  });
+
+  if (!user) {
+    return res
+      .status(400)
+      .json({ message: "Token is invalid or has expired." });
+  }
+
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  res.status(200).json({ message: "Password has been reset successfully." });
+});
+
 export {
   activateUserProfile,
   changeUserPassword,
@@ -273,4 +343,6 @@ export {
   markNotificationRead,
   registerUser,
   updateUserProfile,
+  forgotPassword,
+  resetPassword,
 };
