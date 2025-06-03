@@ -26,13 +26,33 @@ export function dateFormatter(dateString) {
 }
 
 export function getInitials(fullName) {
-  const names = fullName.split(" ");
+  // Handle undefined/null/empty cases
+  if (
+    !fullName ||
+    typeof fullName !== "string" ||
+    fullName.trim().length === 0
+  ) {
+    return "NA"; // Or '?' or '' depending on your preference
+  }
 
-  const initials = names.slice(0, 2).map((name) => name[0].toUpperCase());
+  // Split into names and filter out empty strings
+  const names = fullName
+    .trim()
+    .split(/\s+/)
+    .filter((name) => name.length > 0);
 
-  const initialsStr = initials.join("");
+  // Handle case where we got no valid names
+  if (names.length === 0) return "NA";
 
-  return initialsStr;
+  // Get first letter of first name
+  let initials = names[0][0].toUpperCase();
+
+  // If we have a last name, get its first letter too
+  if (names.length > 1) {
+    initials += names[names.length - 1][0].toUpperCase();
+  }
+
+  return initials;
 }
 
 export const updateURL = ({ searchTerm, navigate, location }) => {
